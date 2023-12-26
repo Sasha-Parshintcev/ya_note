@@ -8,20 +8,23 @@ from notes.models import Note
 
 User = get_user_model()
 
+
 class TestNotes(TestCase):
+    """Класс тест."""
 
     @classmethod
     def setUpTestData(cls):
+        """Фикстуры для тестирования."""
         cls.author = User.objects.create(username='Лев Толстой')
         cls.reader = User.objects.create(username='Читатель простой')
-        cls.notes = Note.objects.create(title='Заголовок', text='Текст', author=cls.author)
-    # def setUp(self):
-    #     self.author = User.objects.create(username='Лев Толстой')
-    #     self.reader = User.objects.create(username='Читатель простой')
-    #     self.notes = Note.objects.create(title='Заголовок', text='Текст', author=self.author)
-
+        cls.notes = Note.objects.create(title='Заголовок', text='Текст',
+                                        author=cls.author)
 
     def test_pages_availability(self):
+        """
+        Главная страница, регистрации пользователей, входа в учётную запись
+        и выхода из неё доступны всем пользователям.
+        """
         urls = (
             ('notes:home', None),
             ('users:signup', None),
@@ -34,15 +37,22 @@ class TestNotes(TestCase):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, OK)
 
-
     def test_notes_page_accessible(self):
+        """
+        Аутентифицированному пользователю доступна страница со списком
+        заметок, страница успешного добавления заметки, страница
+        добавления новой заметки.
+        """
         self.client.force_login(self.reader)
         for name in ('notes:list', 'notes:success', 'notes:add'):
             response = self.client.get(reverse(name))
             self.assertEqual(response.status_code, OK)
 
-
     def test_detail_edit_delete(self):
+        """
+        Страницы отдельной заметки, удаления и редактирования заметки
+        доступны только автору заметки.
+        """
         users_statuses = (
             (self.author, OK),
             (self.reader, NOT_FOUND),
@@ -55,8 +65,13 @@ class TestNotes(TestCase):
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
-
     def test_redirect_for_anonymous_client(self):
+        """
+        При попытке перейти на страницу списка заметок, страницу успешного
+        добавления записи, страницу добавления заметки, отдельной заметки,
+        редактирования или удаления заметки анонимный пользователь
+        перенаправляется на страницу логина.
+        """
         login_url = reverse('users:login')
         for name in ('notes:list', 'notes:success', 'notes:add'):
             with self.subTest(name=name):
