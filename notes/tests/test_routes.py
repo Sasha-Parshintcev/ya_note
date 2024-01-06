@@ -26,14 +26,14 @@ class TestNotes(TestCase):
         и выхода из неё доступны всем пользователям.
         """
         urls = (
-            ('notes:home', None),
-            ('users:signup', None),
-            ('users:login', None),
-            ('users:logout', None),
+            'notes:home',
+            'users:signup',
+            'users:login',
+            'users:logout',
         )
-        for name, args in urls:
+        for name in urls:
             with self.subTest(name=name):
-                url = reverse(name, args=args)
+                url = reverse(name)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, OK)
 

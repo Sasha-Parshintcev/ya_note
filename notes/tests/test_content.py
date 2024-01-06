@@ -29,7 +29,9 @@ class TestNoteCreation(TestCase):
         в списке object_list в словаре context.
         """
         response = self.auth_client.get(self.url)
-        object_list = response.context['object_list']
+        object_list = response.context.get('object_list')
+        if object_list is None:
+            raise ('Исключение')
         self.assertIn(self.note, object_list)
 
     def test_note_not_in_list_for_another_user(self):
@@ -38,7 +40,9 @@ class TestNoteCreation(TestCase):
         заметки другого пользователя.
         """
         response = self.user_client.get(self.url)
-        object_list = response.context['object_list']
+        object_list = response.context.get('object_list')
+        if object_list is None:
+            raise ('Исключение')
         self.assertNotIn(self.note, object_list)
 
     def test_create_note_page_contains_form(self):
@@ -46,9 +50,15 @@ class TestNoteCreation(TestCase):
         url = reverse('notes:add')
         response = self.auth_client.get(url)
         self.assertIn('form', response.context)
+        form = response.context.get('form')
+        if form is None:
+            raise ('Исключение')
 
     def test_edit_note_page_contains_form(self):
         """На страницы редактирования заметки передаются формы."""
         url = reverse('notes:edit', args=(self.note.slug,))
         response = self.auth_client.get(url)
         self.assertIn('form', response.context)
+        form = response.context.get('form')
+        if form is None:
+            raise ('Исключение')
