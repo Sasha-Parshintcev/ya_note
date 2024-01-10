@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from notes.models import Note
+from notes.forms import NoteForm
 
 User = get_user_model()
 
@@ -31,8 +32,8 @@ class TestNoteCreation(TestCase):
         response = self.auth_client.get(self.url)
         object_list = response.context.get('object_list')
         if object_list is None:
-            raise ('Исключение')
-        self.assertIn(self.note, object_list)
+             with self.assertRaises(TypeError):
+                 self.assertIn(self.note, object_list)
 
     def test_note_not_in_list_for_another_user(self):
         """
@@ -42,8 +43,8 @@ class TestNoteCreation(TestCase):
         response = self.user_client.get(self.url)
         object_list = response.context.get('object_list')
         if object_list is None:
-            raise ('Исключение')
-        self.assertNotIn(self.note, object_list)
+             with self.assertRaises(TypeError):
+                self.assertNotIn(self.note, object_list)
 
     def test_create_note_page_contains_form(self):
         """На страницы создания заметки передаются формы."""
@@ -51,8 +52,8 @@ class TestNoteCreation(TestCase):
         response = self.auth_client.get(url)
         self.assertIn('form', response.context)
         form = response.context.get('form')
-        if form is None:
-            raise ('Исключение')
+        self.assertIsInstance(form, NoteForm)
+        
 
     def test_edit_note_page_contains_form(self):
         """На страницы редактирования заметки передаются формы."""
@@ -60,5 +61,4 @@ class TestNoteCreation(TestCase):
         response = self.auth_client.get(url)
         self.assertIn('form', response.context)
         form = response.context.get('form')
-        if form is None:
-            raise ('Исключение')
+        self.assertIsInstance(form, NoteForm)

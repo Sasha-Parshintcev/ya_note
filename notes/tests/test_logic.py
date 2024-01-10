@@ -32,12 +32,11 @@ class TestNoteCreation(TestCase):
 
     def test_user_can_create_note(self):
         """Залогиненный пользователь может создать заметку."""
-        Note.objects.all().delete()
         notes_count = Note.objects.count()
         response = self.user_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, '/done/')
         self.assertEqual(notes_count + 1, Note.objects.count())
-        note = Note.objects.get()
+        note = Note.objects.order_by('pk').last()
         self.assertEqual(note.title, self.form_data['title'])
         self.assertEqual(note.text, self.form_data['text'])
         self.assertEqual(note.slug, self.form_data['slug'])
@@ -64,13 +63,12 @@ class TestNoteCreation(TestCase):
 
     def test_empty_slug(self):
         """Автоматическое формирование slug."""
-        Note.objects.all().delete()
         notes_count = Note.objects.count()
         self.form_data.pop('slug')
         response = self.user_client.post(self.url, data=self.form_data)
         self.assertRedirects(response, reverse('notes:success'))
         self.assertEqual(notes_count + 1, Note.objects.count())
-        new_note = Note.objects.get()
+        new_note = Note.objects.order_by('pk').last()
         expected_slug = slugify(self.form_data['title'])
         self.assertEqual(new_note.slug, expected_slug)
 
