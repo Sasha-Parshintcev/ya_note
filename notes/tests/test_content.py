@@ -31,9 +31,8 @@ class TestNoteCreation(TestCase):
         """
         response = self.auth_client.get(self.url)
         object_list = response.context.get('object_list')
-        if object_list is None:
-            with self.assertRaises(TypeError):
-                self.assertIn(self.note, object_list)
+        self.assertIsNotNone(object_list)
+        self.assertIn(self.note, object_list)
 
     def test_note_not_in_list_for_another_user(self):
         """
@@ -42,9 +41,8 @@ class TestNoteCreation(TestCase):
         """
         response = self.user_client.get(self.url)
         object_list = response.context.get('object_list')
-        if object_list is None:
-            with self.assertRaises(TypeError):
-                self.assertNotIn(self.note, object_list)
+        self.assertIsNotNone(object_list)
+        self.assertNotIn(self.note, object_list)
 
     def test_create_note_page_contains_form(self):
         """На страницы создания заметки передаются формы."""
